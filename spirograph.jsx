@@ -915,8 +915,30 @@ function randomCoprimePair(maxN) {
 // wrap:true は色相を一周する(繋ぎ目なし)。
 // wrap:false は色相を三角波で往復させ、始点と終点の色を揃えて継ぎ目を消す。
 // 彩度・明度は継ぎ目を作らないよう常に三角波で往復させる。
+//
+// speedStops は速度ペン用の別定義(遅い→速いのアンカー)。
+// 虹ペンは「始点と終点が同じ色」なのが正解だが、速度ペンは逆に
+// 「両端が最大限に違う」のが正解で要件が真逆なため、共用せず配色ごとに持たせる。
+// どの配色でも明度を単調に上げる(遅い=暗く沈む → 速い=光る)ことで、
+// 色相だけに頼らず、モノクロ印刷や色覚特性の差があっても速度差が読めるようにする。
 const RAINBOW_STYLES = [
-  { id: "vivid", label: "ビビッド", from: 0, to: 360, sat: [95, 95], light: [55, 68], wrap: true },
+  {
+    id: "vivid",
+    label: "ビビッド",
+    from: 0,
+    to: 360,
+    sat: [95, 95],
+    light: [55, 68],
+    wrap: true,
+    // インフェルノ: 深い藍紫 → マゼンタ → 赤 → 橙 → 黄白の閃光
+    speedStops: [
+      { u: 0.0, h: 262, s: 85, l: 22 },
+      { u: 0.3, h: 300, s: 90, l: 40 },
+      { u: 0.55, h: 8, s: 95, l: 52 },
+      { u: 0.8, h: 32, s: 100, l: 62 },
+      { u: 1.0, h: 52, s: 100, l: 82 },
+    ],
+  },
   {
     id: "gold",
     label: "ゴールド",
@@ -931,10 +953,61 @@ const RAINBOW_STYLES = [
       { u: 0.84, h: 46, s: 96, l: 66 }, // 反射
       { u: 1.0, h: 42, s: 90, l: 38 }, // → 陰へ戻る
     ],
+    // 陰の金 → 輝きの金(元から単調だったので値はそのまま)
+    speedStops: [
+      { u: 0.0, h: 42, s: 85, l: 32 },
+      { u: 1.0, h: 48, s: 100, l: 80 },
+    ],
   },
-  { id: "sunset", label: "サンセット", from: 320, to: 60, sat: [88, 100], light: [42, 70], wrap: false },
-  { id: "ocean", label: "オーシャン", from: 150, to: 250, sat: [88, 88], light: [58, 58], wrap: false },
-  { id: "forest", label: "フォレスト", from: 50, to: 168, sat: [75, 62], light: [66, 28], wrap: false },
+  {
+    id: "sunset",
+    label: "サンセット",
+    from: 320,
+    to: 60,
+    sat: [88, 100],
+    light: [42, 70],
+    wrap: false,
+    // トワイライト: 夜明け前の藍 → 赤紫 → 朱 → 橙 → 陽光
+    speedStops: [
+      { u: 0.0, h: 250, s: 70, l: 28 },
+      { u: 0.3, h: 318, s: 78, l: 45 },
+      { u: 0.6, h: 0, s: 90, l: 56 },
+      { u: 0.85, h: 28, s: 100, l: 66 },
+      { u: 1.0, h: 48, s: 100, l: 80 },
+    ],
+  },
+  {
+    id: "ocean",
+    label: "オーシャン",
+    from: 150,
+    to: 250,
+    sat: [88, 88],
+    light: [58, 58],
+    wrap: false,
+    // 深海 → 水面: 沈んだ紺 → 青 → シアン → 陽の当たる水面
+    speedStops: [
+      { u: 0.0, h: 225, s: 85, l: 22 },
+      { u: 0.35, h: 205, s: 90, l: 40 },
+      { u: 0.7, h: 185, s: 88, l: 58 },
+      { u: 1.0, h: 168, s: 80, l: 86 },
+    ],
+  },
+  {
+    id: "forest",
+    label: "フォレスト",
+    from: 50,
+    to: 168,
+    sat: [75, 62],
+    light: [66, 28],
+    wrap: false,
+    // 木漏れ日: 森の底の深緑 → ライム → 陽の差す黄。虹ペンとは向きが逆(速い=明るい)
+    speedStops: [
+      { u: 0.0, h: 158, s: 60, l: 20 },
+      { u: 0.35, h: 140, s: 58, l: 35 },
+      { u: 0.7, h: 95, s: 65, l: 55 },
+      { u: 1.0, h: 62, s: 85, l: 80 },
+    ],
+  },
   {
     id: "candy",
     label: "キャンディ",
@@ -951,6 +1024,14 @@ const RAINBOW_STYLES = [
       { u: 0.9, h: 310, s: 94, l: 78 }, // ピンクに近づく
       { u: 1.0, h: 328, s: 100, l: 78 }, // → ピンクへ戻る
     ],
+    // ゆめかわヒート: 夜のパープル → ピンク → コーラル → クリーム
+    speedStops: [
+      { u: 0.0, h: 268, s: 70, l: 40 },
+      { u: 0.3, h: 305, s: 80, l: 58 },
+      { u: 0.6, h: 330, s: 95, l: 72 },
+      { u: 0.85, h: 15, s: 100, l: 80 },
+      { u: 1.0, h: 45, s: 100, l: 90 },
+    ],
   },
   {
     id: "pastel",
@@ -966,6 +1047,14 @@ const RAINBOW_STYLES = [
       { u: 0.67, h: 216, s: 92, l: 79 }, // パウダーブルー
       { u: 0.84, h: 268, s: 72, l: 81 }, // ラベンダー
       { u: 1.0, h: 350, s: 100, l: 84 }, // → ピンクへ戻る(繋ぎ目なし)
+    ],
+    // やわらかランプ: くすみラベンダー → パウダーブルー → ミント → バタークリーム。
+    // 淡さを保ちたい配色なので、遅い側は他より明るめ(l:55)で止めている
+    speedStops: [
+      { u: 0.0, h: 250, s: 45, l: 55 },
+      { u: 0.33, h: 205, s: 55, l: 68 },
+      { u: 0.66, h: 150, s: 55, l: 78 },
+      { u: 1.0, h: 48, s: 90, l: 92 },
     ],
   },
 ];
@@ -1012,18 +1101,16 @@ function rainbowCSS(styleId, u) {
 }
 
 // 速度ペン用: 0(遅い)→1(速い)で単調に変化するグラデーション。
-// 虹のように一周させると遅い所と速い所が同じ色になってしまうため、
-// 色相を一周する配色(ビビッド/パステル)は青→赤の定番ヒートマップに割り当てる。
-// こちらは繋ぎ目の心配がないので彩度・明度も端から端へ直線的に変える。
+// 配色ごとの speedStops をそのまま辿る(定義と設計意図は RAINBOW_STYLES 側のコメント参照)。
 function rampColorAt(styleId, u) {
   const st = RAINBOW_STYLES.find((s) => s.id === styleId) || RAINBOW_STYLES[0];
   const t = Math.max(0, Math.min(1, u));
-  if (st.id === "gold") {
-    // 速度ペンでは暗い金 → 輝きの単調ランプ(遅い=陰、速い=光)
-    return { h: 42 + 6 * t, s: 85 + 15 * t, l: 32 + 48 * t };
-  }
+  if (st.speedStops) return interpStops(st.speedStops, t);
+  // speedStops を持たない配色向けのフォールバック。
+  // 虹用の定義は一周して戻ってくる前提なので、そのままでは遅い所と速い所が同色になる。
+  // 色相を一周する配色は青→赤の定番ヒートマップに、
+  // アンカー配列は先頭へ戻る手前までを単調に辿ることで一応の単調性を確保する。
   if (st.stops) {
-    // 最後のアンカー(先頭への戻り)を除いた範囲を単調に辿る
     const lastU = st.stops[st.stops.length - 2].u;
     return interpStops(st.stops, t * lastU);
   }
@@ -1041,6 +1128,22 @@ function rampColorAt(styleId, u) {
   const s = st.sat[0] + (st.sat[1] - st.sat[0]) * t;
   const l = st.light[0] + (st.light[1] - st.light[0]) * t;
   return { h: hue, s, l };
+}
+
+// 速度 → 0..1 の正規化。
+// スピロ曲線の速度は0まで落ちないことが多く、0を基準に割るとランプの下側が丸ごと使われない
+// (既定プリセットは最も遅い所でも最速の約1/3の速さがあり、下1/3の色が出番なしになる)。
+// 実測の最小〜最大へ引き伸ばして配色の幅を使い切る。
+// ただし速度がほぼ一定の曲線(真円など)で微小な差を虹に引き伸ばすと
+// 意味のないノイズになるため、変化幅が小さいときは 0 基準のまま(≒ほぼ単色)にする。
+function speedFloor(vMin, vMax) {
+  return vMax - vMin < vMax * 0.08 ? 0 : vMin;
+}
+
+function normSpeed(v, vFloor, vMax) {
+  const span = vMax - vFloor;
+  if (span <= 1e-6) return 1;
+  return Math.max(0, Math.min(1, (v - vFloor) / span));
 }
 
 function rampCSS(styleId, u) {
@@ -1387,6 +1490,7 @@ export default function Spirograph() {
       }
       // 速度(隣接点間の距離)を計算
       let vMax = 1e-6;
+      let vMin = Infinity;
       const speeds = new Float32Array(NP);
       for (let i = 1; i < NP; i++) {
         const dx = positions[i * 3] - positions[(i - 1) * 3];
@@ -1395,15 +1499,17 @@ export default function Spirograph() {
         const v = Math.sqrt(dx * dx + dy * dy + dz * dz);
         speeds[i] = v;
         if (v > vMax) vMax = v;
+        if (v < vMin) vMin = v;
       }
       speeds[0] = speeds[1] || 0;
+      const vFloor = speedFloor(Number.isFinite(vMin) ? vMin : 0, vMax);
       for (let i = 0; i < NP; i++) {
         let c = baseColor;
         if (q.penMode === "angle") {
           const rc = rainbowColorAt(q.rainbowStyle, angleHues[i]);
           c = tmp.setHSL(rc.h / 360, rc.s / 100, rc.l / 100);
         } else if (q.penMode === "speed") {
-          const rc2 = rampColorAt(q.rainbowStyle, Math.min(1, speeds[i] / vMax));
+          const rc2 = rampColorAt(q.rainbowStyle, normSpeed(speeds[i], vFloor, vMax));
           c = tmp.setHSL(rc2.h / 360, rc2.s / 100, rc2.l / 100);
         }
         colors[i * 3] = c.r;
@@ -1483,15 +1589,18 @@ export default function Spirograph() {
       const samples = 1200;
       const sdt = totalT / samples;
       let vMax = 1e-6;
+      let vMin = Infinity;
       let prev = curvePoint(q0.mode, 0, q0.p, q0.outer);
       for (let i = 1; i <= samples; i++) {
         const cur = curvePoint(q0.mode, i * sdt, q0.p, q0.outer);
         // 刻み幅で割り「単位時間あたりの速さ」にする(描画側の刻みと無関係にする)
         const v = Math.hypot(cur.x - prev.x, cur.y - prev.y) / sdt;
         if (v > vMax) vMax = v;
+        if (v < vMin) vMin = v;
         prev = cur;
       }
       st.vMax = Math.max(vMax, 1e-6);
+      st.vFloor = speedFloor(Number.isFinite(vMin) ? vMin : 0, st.vMax);
     }
 
     const step = () => {
@@ -1518,11 +1627,11 @@ export default function Spirograph() {
             rainbowPhase(q.mode, st.t, q.p, q.outer)
           );
         } else if (q.penMode === "speed") {
-          // 速度ペン: 事前計算した速度範囲で正規化(青=遅い→赤=速い)
+          // 速度ペン: 事前計算した速度範囲で正規化(遅い=暗い→速い=明るい)
           const v = st.lastRaw
             ? Math.hypot(pt.x - st.lastRaw.x, pt.y - st.lastRaw.y) / dt
-            : 0;
-          strokeColor = rampCSS(q.rainbowStyle, Math.min(1, v / st.vMax));
+            : st.vFloor;
+          strokeColor = rampCSS(q.rainbowStyle, normSpeed(v, st.vFloor, st.vMax));
           st.lastRaw = { x: pt.x, y: pt.y };
         }
 
@@ -1590,14 +1699,17 @@ export default function Spirograph() {
       const samples = 1500;
       const sdt = (2 * Math.PI) / samples;
       let vMax = 1e-6;
+      let vMin = Infinity;
       let prev = fourierTip(F.coeffs, q0.numCircles, 0);
       for (let i = 1; i <= samples; i++) {
         const cur = fourierTip(F.coeffs, q0.numCircles, i * sdt);
         const v = Math.hypot(cur.x - prev.x, cur.y - prev.y) / sdt;
         if (v > vMax) vMax = v;
+        if (v < vMin) vMin = v;
         prev = cur;
       }
       st.vMax = Math.max(vMax, 1e-6);
+      st.vFloor = speedFloor(Number.isFinite(vMin) ? vMin : 0, st.vMax);
     }
     setDrawing(true);
     if (withRecord) startRecording(canvasRef.current);
@@ -1619,8 +1731,8 @@ export default function Spirograph() {
         } else if (q.penMode === "speed") {
           const v = st.lastRaw
             ? Math.hypot(tip.x - st.lastRaw.x, tip.y - st.lastRaw.y) / dtF
-            : 0;
-          col = rampCSS(q.rainbowStyle, Math.min(1, v / st.vMax));
+            : st.vFloor;
+          col = rampCSS(q.rainbowStyle, normSpeed(v, st.vFloor, st.vMax));
           st.lastRaw = { x: tip.x, y: tip.y };
         }
         F.trace.push({ x: tip.x, y: tip.y, c: col });
@@ -2661,11 +2773,15 @@ export default function Spirograph() {
             }}
           />
           <button
-            title="速度ペン(青=遅い→赤=速い)"
+            title="速度ペン(暗い=遅い→明るい=速い)"
             onClick={() => setPenMode(penMode === "speed" ? "solid" : "speed")}
             className="w-9 h-9 rounded-full flex items-center justify-center text-xs"
             style={{
-              background: "linear-gradient(135deg, #2244ff, #22ddff, #ffee22, #ff3322)",
+              // 既定配色(ビビッド=インフェルノ)の速度ランプに合わせる
+              background:
+                "linear-gradient(135deg," +
+                [0, 0.3, 0.55, 0.8, 1].map((u) => rampCSS("vivid", u)).join(",") +
+                ")",
               transform: penMode === "speed" ? "scale(1.2)" : "scale(1)",
               outline: penMode === "speed" ? "2px solid #ffffff66" : "none",
               outlineOffset: "3px",
