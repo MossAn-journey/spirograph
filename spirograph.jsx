@@ -760,6 +760,10 @@ const PRESETS = [
     name: "🛸 UFOリング",
     s: { is3D: true, mode: "spiro", R: 160, r: 45, d: 95, outer: true, shape: "triangle", chain: false, sym: 3, penMode: "speed", zAmp: 45, zRatio: 2, mirror3d: false },
   },
+  {
+    name: "🪸 きらめきコーラル",
+    s: { is3D: true, mode: "spiro", R: 110, r: 33, d: 23, outer: false, shape: "sparkle", chain: true, r2: 30, concaveFlip: false, penReverse: false, sym: 6, penMode: "angle", rainbowStyle: "vivid", zAmp: 188, zRatio: 0.25, mirror3d: false },
+  },
 ];
 
 // ============ アイコンモード ============
