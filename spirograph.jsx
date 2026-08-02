@@ -762,7 +762,7 @@ const PRESETS = [
   },
   {
     name: "🪸 きらめきコーラル",
-    s: { is3D: true, mode: "spiro", R: 110, r: 33, d: 23, outer: false, shape: "sparkle", chain: true, r2: 30, concaveFlip: false, penReverse: false, sym: 6, penMode: "angle", rainbowStyle: "vivid", zAmp: 188, zRatio: 0.25, mirror3d: false },
+    s: { is3D: true, mode: "spiro", R: 110, r: 33, d: 23, outer: false, shape: "sparkle", chain: true, r2: 30, penReverse: false, sym: 6, penMode: "angle", rainbowStyle: "vivid", zAmp: 188, zRatio: 0.25, mirror3d: false },
   },
 ];
 
@@ -2011,7 +2011,10 @@ export default function Spirograph() {
     if ("outer" in s) setOuter(s.outer);
     if ("shape" in s) setShape(s.shape);
     if ("chain" in s) setChain(s.chain);
-    if ("concaveFlip" in s) setConcaveFlip(s.concaveFlip);
+    // 凹みで反転は、プリセット側に指定が無ければ必ずOFFへ戻す。
+    // applyPreset は s に無いキーを触らないので、直前のプリセットでONにした
+    // 状態が残っていると、次に選んだプリセットが意図しない形になってしまう
+    setConcaveFlip("concaveFlip" in s ? s.concaveFlip : false);
     if ("penReverse" in s) setPenReverse(s.penReverse);
     if ("r2" in s) setR2(s.r2);
     if ("la" in s) setLa(s.la);
