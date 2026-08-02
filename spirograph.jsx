@@ -930,13 +930,16 @@ const RAINBOW_STYLES = [
     sat: [95, 95],
     light: [55, 68],
     wrap: true,
-    // インフェルノ: 深い藍紫 → マゼンタ → 赤 → 橙 → 黄白の閃光
+    // 全スペクトル: 青紫 → 青 → シアン → 緑 → 黄 → 明るい橙。
+    // 虹ペンで色相を一周する配色なので、速度ペンでも「一番多くの色を使う」役割を担わせる。
+    // 暖色アークにするとサンセットと見分けがつかなくなるため、寒色側から始める
     speedStops: [
-      { u: 0.0, h: 262, s: 85, l: 22 },
-      { u: 0.3, h: 300, s: 90, l: 40 },
-      { u: 0.55, h: 8, s: 95, l: 52 },
-      { u: 0.8, h: 32, s: 100, l: 62 },
-      { u: 1.0, h: 52, s: 100, l: 82 },
+      { u: 0.0, h: 270, s: 90, l: 22 },
+      { u: 0.2, h: 225, s: 95, l: 36 },
+      { u: 0.4, h: 180, s: 95, l: 48 },
+      { u: 0.6, h: 120, s: 85, l: 58 },
+      { u: 0.78, h: 55, s: 95, l: 68 },
+      { u: 1.0, h: 25, s: 100, l: 82 },
     ],
   },
   {
@@ -2777,10 +2780,10 @@ export default function Spirograph() {
             onClick={() => setPenMode(penMode === "speed" ? "solid" : "speed")}
             className="w-9 h-9 rounded-full flex items-center justify-center text-xs"
             style={{
-              // 既定配色(ビビッド=インフェルノ)の速度ランプに合わせる
+              // 既定配色(ビビッド)の速度ランプに合わせる
               background:
                 "linear-gradient(135deg," +
-                [0, 0.3, 0.55, 0.8, 1].map((u) => rampCSS("vivid", u)).join(",") +
+                [0, 0.2, 0.4, 0.6, 0.78, 1].map((u) => rampCSS("vivid", u)).join(",") +
                 ")",
               transform: penMode === "speed" ? "scale(1.2)" : "scale(1)",
               outline: penMode === "speed" ? "2px solid #ffffff66" : "none",
